@@ -1,0 +1,107 @@
+stages: # Define Stage
+  - build_old
+  - test_old
+  - build_new
+  - test_new
+  - push_new
+
+variables: # Define Global Environment Variable
+  ENV_CONTAINER_PORT_EXPOSE: 8081
+
+build_private_main_old:
+  stage: build_old
+  tags: # Select Runner Server by GitLab Runnser Register Tags
+    - imddev-build
+  only: # Git Selected `Master` Branch
+    - master
+  script:
+    - sudo docker build --no-cache --tag imd_kaiyaphap_api:$CI_COMMIT_SHORT_SHA .
+
+test_private_main_old:
+  stage: test_old
+  needs: ["build_private_main_old"]
+  tags: # Select Runner Server by GitLab Runnser Register Tags
+    - imddev-test
+  only: # Git Selected `Master` Branch
+    - master
+  before_script:
+    - sudo sh shell_rmc.sh
+  script:
+    - sudo docker run --rm -i -t -d --name imd_kp_api --hostname imd_kp_api -p 8800:8800/tcp -v kp_images:/root/app/media/upload imd_kaiyaphap_api:$CI_COMMIT_SHORT_SHA
+  after_script:
+    - sudo docker image prune -f
+
+build_private_main_new:
+  stage: build_new
+  services:
+    - docker:19.03.12-dind
+  tags:
+    - dind-kyp_system_api
+  only:
+    - master
+  variables:
+    ENV_REPOSITORY_TAG: main
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:$ENV_REPOSITORY_TAG || true
+    - docker build 
+      --build-arg HTTPPORT=$ENV_CONTAINER_PORT_EXPOSE 
+      --cache-from $CI_REGISTRY_IMAGE:$ENV_REPOSITORY_TAG 
+      --tag $CI_REGISTRY_IMAGE:$ENV_REPOSITORY_TAG  
+      --file ./Ci/Development/Dockerfile .
+    - docker push $CI_REGISTRY_IMAGE:$ENV_REPOSITORY_TAG 
+
+test_private_main_new:
+  stage: test_new
+  needs: ["build_private_main_new"]
+  tags:
+    - shell-kyp_system_api
+  only:
+    - master
+  variables:
+    ENV_REPOSITORY_TAG: main
+    ENV_CONTAINER_NAME: kyp_system_api
+    ENV_CONTAINER_HOSTNAME: kyp_system_api
+    ENV_CONTAINER_IP_OUTSIDE: 127.0.0.1
+    ENV_CONTAINER_PORT_OUTSIDE: 8801
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker stop $(docker ps -a | grep $CI_REGISTRY_IMAGE:$ENV_REPOSITORY_TAG | awk '{print $1}') || true
+    - docker rm $(docker ps -a | grep $CI_REGISTRY_IMAGE:$ENV_REPOSITORY_TAG | awk '{print $1}') || true
+    - docker rmi $(docker images | grep $CI_REGISTRY_IMAGE | grep $ENV_REPOSITORY_TAG | awk '{print $3}') || true
+    - docker network create mongo-net || true
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:$ENV_REPOSITORY_TAG
+    - docker run 
+      --detach 
+      --name $ENV_CONTAINER_NAME 
+      --hostname $ENV_CONTAINER_HOSTNAME 
+      --network="mongo-net"
+      --publish $ENV_CONTAINER_IP_OUTSIDE:$ENV_CONTAINER_PORT_OUTSIDE:$ENV_CONTAINER_PORT_EXPOSE/tcp
+      --env-file ./Ci/Development/environment.env
+      $CI_REGISTRY_IMAGE:$ENV_REPOSITORY_TAG
+
+
+push_docker_production_cloud_main:
+  stage: push_new
+  needs: ["build_private_main_new", "test_private_main_new"]
+  when: manual
+  services:
+    - docker:19.03.12-dind
+  tags:
+    - docker-dind
+  only:
+    - master
+  variables:
+    ENV_REPOSITORY_TAG: latest
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:$ENV_REPOSITORY_TAG || true
+    - docker build 
+      --build-arg HTTPPORT=$ENV_CONTAINER_PORT_EXPOSE 
+      --cache-from $CI_REGISTRY_IMAGE:$ENV_REPOSITORY_TAG 
+      --tag $CI_REGISTRY_IMAGE:$ENV_REPOSITORY_TAG 
+      --file ./Ci/Production/Dockerfile .
+    - docker push $CI_REGISTRY_IMAGE:$ENV_REPOSITORY_TAG

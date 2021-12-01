@@ -1,0 +1,238 @@
+/**
+ * Middleware สำหรับ Route /masterdata/treatmentrights/create
+ * 
+ * ทำหน้าที่ตรวจจับ JSON ที่ส่งเข้ามาด้วยเงื่อนไขดังต่อไปนี้
+ * 
+ ** name จะต้องเป็น String และไม่มีค่าว่าว่าง
+ ** _agentid จะต้องเป็น ObjectId ที่อยู่ในรูปแบบ String และไม่มีค่าว่าว่าง
+ ** _storeid จะต้องเป็น ObjectId ที่อยู่ในรูปแบบ String และไม่มีค่าว่าว่าง
+ ** _branchid จะต้องเป็น ObjectId ที่อยู่ในรูปแบบ String และไม่มีค่าว่าว่าง
+ * 
+ * ***หากทีการตรวจสอบแล้ว ไม่ถูกต้องตามเงื่อนไข จะส่ง Response Code 400 (Bad Request) ไป***
+ * 
+ */
+const treatmentRightsStore_Save_Middleware = (req, res, next) => {
+    const validateObjectId = require('../../../Controller/miscController').validateObjectId;
+
+    const payload = req.body;
+
+    let ErrorJson = {
+        http_code: 400,
+        document_code: 40020011101, // 400 Response/Bad Request, 200 GET, 111 GET/Masterdatatemplate, 001 Instruction 1 
+        description: []
+    };
+
+    if (typeof payload.name != 'string' || payload.name == '') {
+        ErrorJson.description.push(`name must be String and Not Empty`);
+    }
+    if (typeof payload._storeid != 'string' || payload._storeid == '') {
+        ErrorJson.description.push(`payload._storeid must be String ObjectId and Not Empty`);
+    }
+    else {
+        if (!validateObjectId(payload._storeid)) {
+            ErrorJson.description.push(`payload._storeid Validate ObjectId return false`);
+        }
+    }
+    if (typeof payload._branchid != 'string' || payload._branchid == '') {
+        ErrorJson.description.push(`payload._branchid must be String ObjectId and Not Empty`);
+    }
+    else {
+        if (!validateObjectId(payload._branchid)) {
+            ErrorJson.description.push(`payload._branchid Validate ObjectId return false`);
+        }
+    }
+    // if (typeof payload.refactor_name != 'boolean') {
+    //     ErrorJson.description.push(`payload.refactor_name must be Boolean`);
+    // }
+
+    if(ErrorJson.description.length > 0) {
+        res.status(400).json(ErrorJson).end();
+    }
+    else {
+        next();
+    }
+};
+
+
+/**
+ * Middleware สำหรับ Route PUT /masterdata/treatmentrights/edit
+ * 
+ * ทำหน้าที่ตรวจจับ JSON ที่ส่งเข้ามาด้วยเงื่อนไขดังต่อไปนี้
+ * 
+ ** name จะต้องเป็น String และไม่มีค่าว่าว่าง
+ ** _treatment_rightsid จะต้องเป็น ObjectId ที่อยู่ในรูปแบบ String และไม่มีค่าว่าว่าง
+ ** _agentid จะต้องเป็น ObjectId ที่อยู่ในรูปแบบ String และไม่มีค่าว่าว่าง
+ ** _storeid จะต้องเป็น ObjectId ที่อยู่ในรูปแบบ String และไม่มีค่าว่าว่าง
+ ** _branchid จะต้องเป็น ObjectId ที่อยู่ในรูปแบบ String และไม่มีค่าว่าว่าง
+ * 
+ * ***หากทีการตรวจสอบแล้ว ไม่ถูกต้องตามเงื่อนไข จะส่ง Response Code 400 (Bad Request) ไป***
+ * 
+ */
+const treatmentRightsStore_Edit_Middleware = (req, res, next) => {
+    const validateObjectId = require('../../../Controller/miscController').validateObjectId;
+
+    const payload = req.body;
+
+    let ErrorJson = {
+        http_code: 400,
+        document_code: 40020011101, // 400 Response/Bad Request, 200 GET, 111 GET/Masterdatatemplate, 001 Instruction 1 
+        description: []
+    };
+
+    if (typeof payload.name != 'string' || payload.name == '') {
+        ErrorJson.description.push(`name must be String and Not Empty`);
+    }
+    if (typeof payload._storeid != 'string' || payload._storeid == '') {
+        ErrorJson.description.push(`payload._storeid must be String ObjectId and Not Empty`);
+    }
+    else {
+        if (!validateObjectId(payload._storeid)) {
+            ErrorJson.description.push(`payload._storeid Validate ObjectId return false`);
+        }
+    }
+    if (typeof payload._branchid != 'string' || payload._branchid == '') {
+        ErrorJson.description.push(`payload._branchid must be String ObjectId and Not Empty`);
+    }
+    else {
+        if (!validateObjectId(payload._branchid)) {
+            ErrorJson.description.push(`payload._branchid Validate ObjectId return false`);
+        }
+    }
+    if (typeof payload._treatment_rightsid != 'string' || payload._treatment_rightsid == '') {
+        ErrorJson.description.push(`payload._treatment_rightsid must be String ObjectId and Not Empty`);
+    }
+    else {
+        if (!validateObjectId(payload._treatment_rightsid)) {
+            ErrorJson.description.push(`payload._treatment_rightsid Validate ObjectId return false`);
+        }
+    }
+    // if (typeof payload.refactor_name != 'boolean') {
+    //     ErrorJson.description.push(`payload.refactor_name must be Boolean`);
+    // }
+
+    if(ErrorJson.description.length > 0) {
+        res.status(400).json(ErrorJson).end();
+    }
+    else {
+        next();
+    }
+};
+
+
+
+
+/**
+ * Middleware สำหรับ Route PATCH /masterdata/treatmentrights/edit
+ * 
+ * ทำหน้าที่ตรวจจับ JSON ที่ส่งเข้ามาด้วยเงื่อนไขดังต่อไปนี้
+ * 
+ ** name จะต้องเป็น String และไม่มีค่าว่าว่าง
+ ** _treatment_rightsid จะต้องเป็น ObjectId ที่อยู่ในรูปแบบ String และไม่มีค่าว่าว่าง
+ ** _agentid จะต้องเป็น ObjectId ที่อยู่ในรูปแบบ String และไม่มีค่าว่าว่าง
+ ** _storeid จะต้องเป็น ObjectId ที่อยู่ในรูปแบบ String และไม่มีค่าว่าว่าง
+ ** _branchid จะต้องเป็น ObjectId ที่อยู่ในรูปแบบ String และไม่มีค่าว่าว่าง
+ * 
+ * ***หากทีการตรวจสอบแล้ว ไม่ถูกต้องตามเงื่อนไข จะส่ง Response Code 400 (Bad Request) ไป***
+ * 
+ */
+const treatmentRightsStore_Disabled_Middleware = (req, res, next) => {
+    const validateObjectId = require('../../../Controller/miscController').validateObjectId;
+
+    const payload = req.body;
+
+    let ErrorJson = {
+        http_code: 400,
+        document_code: 40020011101, // 400 Response/Bad Request, 200 GET, 111 GET/Masterdatatemplate, 001 Instruction 1 
+        description: []
+    };
+
+    if (typeof payload._storeid != 'string' || payload._storeid == '') {
+        ErrorJson.description.push(`payload._storeid must be String ObjectId and Not Empty`);
+    }
+    else {
+        if (!validateObjectId(payload._storeid)) {
+            ErrorJson.description.push(`payload._storeid Validate ObjectId return false`);
+        }
+    }
+    if (typeof payload._branchid != 'string' || payload._branchid == '') {
+        ErrorJson.description.push(`payload._branchid must be String ObjectId and Not Empty`);
+    }
+    else {
+        if (!validateObjectId(payload._branchid)) {
+            ErrorJson.description.push(`payload._branchid Validate ObjectId return false`);
+        }
+    }
+    if (typeof payload._treatment_rightsid != 'string' || payload._treatment_rightsid == '') {
+        ErrorJson.description.push(`payload._treatment_rightsid must be String ObjectId and Not Empty`);
+    }
+    else {
+        if (!validateObjectId(payload._treatment_rightsid)) {
+            ErrorJson.description.push(`payload._treatment_rightsid Validate ObjectId return false`);
+        }
+    }
+
+    if(ErrorJson.description.length > 0) {
+        res.status(400).json(ErrorJson).end();
+    }
+    else {
+        next();
+    }
+};
+
+
+
+
+/**
+ * Middleware สำหรับ Route /masterdata/treatmentrights/:storeid/:branchid
+ * 
+ * ทำหน้าที่ตรวจจับ JSON ที่ส่งเข้ามาด้วยเงื่อนไขดังต่อไปนี้
+ * 
+ ** _storeid จะต้องเป็น ObjectId ที่อยู่ในรูปแบบ String และไม่มีค่าว่าว่าง
+ ** _branchid จะต้องเป็น ObjectId ที่อยู่ในรูปแบบ String และไม่มีค่าว่าว่าง
+ * 
+ * ***หากทีการตรวจสอบแล้ว ไม่ถูกต้องตามเงื่อนไข จะส่ง Response Code 400 (Bad Request) ไป***
+ * 
+ */
+const treatmentRightsStore_View_Middleware = (req, res, next) => {
+    const validateObjectId = require('../../../Controller/miscController').validateObjectId;
+
+    const { storeid, branchid } = req.params;
+
+    let ErrorJson = {
+        http_code: 400,
+        document_code: 40020011101, // 400 Response/Bad Request, 200 GET, 111 GET/Masterdatatemplate, 001 Instruction 1 
+        description: []
+    };
+
+    if (typeof storeid != 'string' || storeid == '') {
+        ErrorJson.description.push(`_storeid must be String ObjectId and Not Empty`);
+    }
+    else {
+        if (!validateObjectId(storeid)) {
+            ErrorJson.description.push(`_storeid Validate ObjectId return false`);
+        }
+    }
+    if (typeof branchid != 'string' || branchid == '') {
+        ErrorJson.description.push(`_branchid must be String ObjectId and Not Empty`);
+    }
+    else {
+        if (!validateObjectId(branchid)) {
+            ErrorJson.description.push(`_branchid Validate ObjectId return false`);
+        }
+    }
+
+    if(ErrorJson.description.length > 0) {
+        res.status(400).json(ErrorJson).end();
+    }
+    else {
+        next();
+    }
+};
+
+
+module.exports = {
+    treatmentRightsStore_Save_Middleware,
+    treatmentRightsStore_Edit_Middleware,
+    treatmentRightsStore_Disabled_Middleware,
+    treatmentRightsStore_View_Middleware,
+};
